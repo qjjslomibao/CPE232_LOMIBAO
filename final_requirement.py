@@ -4,6 +4,52 @@ import numpy as np
 from keras.models import load_model
 from PIL import Image  # Use PIL for image processing
 import matplotlib.pyplot as plt
+import os
+import streamlit as st
+import tensorflow as tf
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from keras.callbacks import ModelCheckpoint
+from keras.metrics import BinaryAccuracy
+from keras.preprocessing import image
+from keras.preprocessing.image import ImageDataGenerator
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+
+# Set TensorFlow backend
+tf.compat.v1.disable_eager_execution()
+
+# Load the model
+model_path = '/content/drive/MyDrive/EMTECH 2 FINAL REQUIREMENT DATASET/best_model.h5'
+model = load_model(model_path)
+
+# Streamlit app
+st.title("Emotion Recognition App")
+
+uploaded_file = st.file_uploader("Choose an image...", type="jpg")
+
+if uploaded_file is not None:
+    # Preprocess the image
+    img = Image.open(uploaded_file).convert("RGB")  # Use PIL to open and convert image to RGB
+    img = img.resize((64, 64))  # Resize the image
+    img_array = np.array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = img_array / 255.0  # Normalize pixel values
+
+    # Make prediction
+    prediction = model.predict(img_array)
+
+    # Determine predicted class and confidence
+    predicted_class = "Happy" if prediction[0] >= 0.5 else "Sad"
+    confidence = prediction[0] if predicted_class == "Happy" else 1 - prediction[0]
+    confidence_scalar = float(confidence)
+
+    # Display the image and prediction
+    st.image(img, caption="Uploaded Image", use_column_width=True)
+    st.write(f'Predicted Class: {predicted_class} (Confidence: {confidence_scalar:.2f})')
+
+# Rest of your code...
 
 # Load the model
 model_path = '/content/drive/MyDrive/EMTECH 2 FINAL REQUIREMENT DATASET/best_model.h5'
