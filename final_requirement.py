@@ -2,23 +2,27 @@ import streamlit as st
 from keras.preprocessing import image
 import numpy as np
 from keras.models import load_model
-from PIL import Image
+from PIL import Image  # Use PIL for image processing
 import matplotlib.pyplot as plt
 
+# Load the model
 model_path = '/content/drive/MyDrive/EMTECH 2 FINAL REQUIREMENT DATASET/best_model.h5'
 model = load_model(model_path)
 
+# Streamlit app
 st.title("Emotion Recognition App")
 
 uploaded_file = st.file_uploader("Choose an image...", type="jpg")
 
 if uploaded_file is not None:
-
-    img = image.load_img(uploaded_file, target_size=(64, 64))
-    img_array = image.img_to_array(img)
+    # Preprocess the image
+    img = Image.open(uploaded_file).convert("RGB")  # Use PIL to open and convert image to RGB
+    img = img.resize((64, 64))  # Resize the image
+    img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
-    img_array /= 255.0
+    img_array = img_array / 255.0  # Normalize pixel values
 
+    # Make prediction
     prediction = model.predict(img_array)
 
     # Determine predicted class and confidence
@@ -29,6 +33,7 @@ if uploaded_file is not None:
     # Display the image and prediction
     st.image(img, caption="Uploaded Image", use_column_width=True)
     st.write(f'Predicted Class: {predicted_class} (Confidence: {confidence_scalar:.2f})')
+
 
 
 from keras.preprocessing.image import ImageDataGenerator
